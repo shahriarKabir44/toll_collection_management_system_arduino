@@ -1,12 +1,15 @@
 #include <SoftwareSerial.h>
 SoftwareSerial myGsm(7, 8);
-
+#include<Servo.h>
+Servo myservo; 
 void setup()
 {
+   myservo.attach(9);
   myGsm.begin(9600);
   Serial.begin(9600);
   delay(500);
-
+myservo.write(0);
+  Serial.println("here");
   myGsm.println("AT+CGATT=1");
   delay(200);
   printSerialData();
@@ -28,7 +31,7 @@ void setup()
   delay(2000);
   printSerialData();
 
-  myGsm.println("AT+HTTPPARA=\"URL\",\"tollcollection.herokuapp.com/checkPayment/1095/6565\""); // setting the httppara,
+  myGsm.println("AT+HTTPPARA=\"URL\",\"tollcollection.herokuapp.com/checkPayment/16095/6565\""); // setting the httppara,
   // the second parameter is the website from where you want to access data
   delay(1000);
   printSerialData();
@@ -70,6 +73,17 @@ void printResult()
   }
   Serial.println(zeroes);
   Serial.println(ones);
+  if(ones==2){
+    int pos=0;
+    Serial.println("good to go");
+    for (pos = 0; pos <= 90; pos += 1) { // goes from 0 degrees to 180 degrees
+    // in steps of 1 degree
+    myservo.write(pos);              // tell servo to go to position in variable 'pos'
+    delay(15);                       // waits 15 ms for the servo to reach the position
+  }
+   
+  delay(3000); 
+   }
 }
 void printSerialData()
 {
