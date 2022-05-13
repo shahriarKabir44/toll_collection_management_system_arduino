@@ -2,14 +2,10 @@
 SoftwareSerial myGsm(7, 8);
 #include<Servo.h>
 Servo myservo; 
-void setup()
-{
-   myservo.attach(9);
-  myGsm.begin(9600);
-  Serial.begin(9600);
-  delay(500);
-myservo.write(0);
-  Serial.println("here");
+
+void makeHTTPRequest(String vehicleId,String bridgeId){
+  myservo.write(0);
+   
   myGsm.println("AT+CGATT=1");
   delay(200);
   printSerialData();
@@ -24,14 +20,14 @@ myservo.write(0);
 
   myGsm.println();
   myGsm.println("AT+SAPBR=1,1");
-  delay(10000);
+  delay(5000);
   printSerialData();
 
   myGsm.println("AT+HTTPINIT"); // init the HTTP request
   delay(2000);
   printSerialData();
-
-  myGsm.println("AT+HTTPPARA=\"URL\",\"tollcollection.herokuapp.com/checkPayment/16095/6565\""); // setting the httppara,
+  String URL="tollcollection.herokuapp.com/checkPayment/"+String(vehicleId)+"/"+String(bridgeId);
+  myGsm.println("AT+HTTPPARA=\"URL\",\""+String(URL)+"\""); // setting the httppara,
   // the second parameter is the website from where you want to access data
   delay(1000);
   printSerialData();
@@ -48,6 +44,15 @@ myservo.write(0);
   delay(1000);
   myGsm.println("AT+HTTPTERM"); // terminate HTTP service
   printSerialData();
+}
+
+void setup()
+{
+  myservo.attach(9);
+  myGsm.begin(9600);
+  Serial.begin(9600);
+  delay(500);
+  makeHTTPRequest("1","2");
 }
 
 void loop()
