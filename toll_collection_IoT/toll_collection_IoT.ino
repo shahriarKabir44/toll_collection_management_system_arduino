@@ -8,6 +8,13 @@ Servo myservo;
 #define RST_PIN 0
 MFRC522 mfrc522(SS_PIN, RST_PIN); // Create MFRC522 instance.
 
+int transistorStatus=0;
+int stat=1;
+void togglePin(){
+  analogWrite(2,stat?150:0);
+  stat^=1;
+}
+
 void makeHTTPRequest(String vehicleId, String bridgeId)
 {
 	myservo.write(0);
@@ -21,12 +28,12 @@ void makeHTTPRequest(String vehicleId, String bridgeId)
 	printSerialData();
 
 	myGsm.println("AT+SAPBR=3,1,\"APN\",\"internet\""); // setting the APN,2nd parameter empty works for all networks
-	delay(5000);
+	delay(3000);
 	printSerialData();
 
 	myGsm.println();
 	myGsm.println("AT+SAPBR=1,1");
-	delay(5000);
+	delay(4000);
 	printSerialData();
 
 	myGsm.println("AT+HTTPINIT"); // init the HTTP request
@@ -40,7 +47,7 @@ void makeHTTPRequest(String vehicleId, String bridgeId)
 
 	myGsm.println();
 	myGsm.println("AT+HTTPACTION=0"); // submit the GET request
-	delay(8000);					  // the delay is important if the return datas are very large, the time required longer.
+	delay(4000);					  // the delay is important if the return datas are very large, the time required longer.
 	printSerialData();
 	myGsm.println("AT+HTTPREAD=0,20"); // read the data from the website you access
 	delay(3000);
@@ -54,6 +61,7 @@ void makeHTTPRequest(String vehicleId, String bridgeId)
 
 void setup()
 {
+  
 	myservo.attach(9);
 	myGsm.begin(9600);
 	Serial.begin(9600);
@@ -64,10 +72,13 @@ void setup()
 	Serial.println();
 	pinMode(3, OUTPUT);
 	pinMode(4, OUTPUT);
+ pinMode(2,OUTPUT);
+  
 }
 
 void loop()
 {
+   togglePin();
 	// Look for new cards
 	if (!mfrc522.PICC_IsNewCardPresent())
 	{
@@ -95,9 +106,11 @@ void loop()
 	makeHTTPRequest(content, "1");
 	Serial.println("Approximate your card to the reader...");
 	myservo.write(0);
+ delay(400);
 }
 void printResult()
 {
+  togglePin();
 	int chars = 0;
 	int ones = 0;
 	int zeroes = 0;
@@ -118,7 +131,10 @@ void printResult()
 	Serial.println(ones);
 	if (ones == 2)
 	{
+  stat=0;
 		digitalWrite(4, HIGH);
+     togglePin();
+    delay(15);
 		int pos = 0;
 		Serial.println("good to go");
 		for (pos = 0; pos <= 90; pos += 1)
@@ -130,9 +146,14 @@ void printResult()
 
 		delay(3000);
 		digitalWrite(4, LOW);
+       
 	}
 	else
 	{
+  stat=0;
+  togglePin();
+    delay(15);
+    int pos = 0;
 		digitalWrite(3, HIGH);
 		delay(3000);
 		digitalWrite(3, LOW);
@@ -140,6 +161,7 @@ void printResult()
 }
 void printSerialData()
 {
+   togglePin();
 	int chars = 0;
 	while (myGsm.available() != 0)
 	{
