@@ -33,7 +33,7 @@ void makeHTTPRequest(String vehicleId, String bridgeId)
 
 	myGsm.println();
 	myGsm.println("AT+SAPBR=1,1");
-	delay(4000);
+	delay(5000);
 	printSerialData();
 
 	myGsm.println("AT+HTTPINIT"); // init the HTTP request
@@ -42,12 +42,12 @@ void makeHTTPRequest(String vehicleId, String bridgeId)
 	String URL = "tollcollection.herokuapp.com/checkPayment/" + String(vehicleId) + "/" + String(bridgeId);
 	myGsm.println("AT+HTTPPARA=\"URL\",\"" + String(URL) + "\""); // setting the httppara,
 	// the second parameter is the website from where you want to access data
-	delay(1000);
+	delay(2000);
 	printSerialData();
 
-	myGsm.println();
+
 	myGsm.println("AT+HTTPACTION=0"); // submit the GET request
-	delay(4000);					  // the delay is important if the return datas are very large, the time required longer.
+	delay(5000);					  // the delay is important if the return datas are very large, the time required longer.
 	printSerialData();
 	myGsm.println("AT+HTTPREAD=0,20"); // read the data from the website you access
 	delay(3000);
@@ -144,7 +144,7 @@ void printResult()
 			delay(15);			// waits 15 ms for the servo to reach the position
 		}
 
-		delay(3000);
+		delay(5000);
 		digitalWrite(4, LOW);
        
 	}
